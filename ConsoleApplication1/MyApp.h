@@ -1,9 +1,10 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <string>
 #include <limits>
 #include <string>
-#include <stack>
+#include <queue>
 
 namespace LAB1 {
 	struct MyApp
@@ -16,24 +17,30 @@ namespace LAB1 {
 
 		static void generatesArrayFromRandom(int begin = 0, int end = std::numeric_limits<int>::max());
 
-		constexpr const static std::string delimiter(char del = '=');
-		static std::string generatingStrings(const std::string& str);
-		static std::string generatingStrings(const std::string& str, const std::string& str2, char del = ' ');
+		static const std::string delimiter(char del = '=');
+
+		static const std::string generatingStrings(const std::string& str, char del = ' ');
+		static const std::string generatingStrings(const std::string&& str, char del = ' ');
+		static const std::string generatingStrings(const std::string&& str, const std::string&& str2, char del = ' ');
+
 		static void printArray();
 		static void clearArray();
 		static void showStatusBar(); 
-		static size_t getMaxTableLength();
-		static unsigned int getSizeArray();
-		static void setSizeArray(unsigned int newSizeArray= sizeArray);
+		static void setSizeArray(size_t newSizeArray= sizeArray);
 		static void resizeArrayStep();
-		static void addStack(const std::string& part);
+		static void addInStatusBar(const std::string& part);
+
+		static size_t getMaxTableLength();
+		static size_t getSizeArray();
 	private:
 
 		static bool flagClearArray;
-		static std::stack <std::string> stack;
+		static bool enablesFormatStatusBar;
+		static std::queue <std::string> bufferForStatusBar;
 		static std::vector <int> Array;
 		static const size_t maxTableLength;
-		static unsigned int sizeArray;
+		static const size_t maxTableColumns;
+		static size_t sizeArray;
 		static std::ostream& out;
 	};
 }

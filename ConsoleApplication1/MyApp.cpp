@@ -22,10 +22,10 @@ void LAB1::MyApp::showMenu()
 	MyApp::out << hr;
 }
 
-constexpr const std::string LAB1::MyApp::delimiter(char del)
+const std::string LAB1::MyApp::delimiter(char del)
 {
 	std::string result(maxTableLength, del);
-	result[0] = '#';	result[result.size() - 2] = '#'; result[result.size() - 1] = '\n';
+	result.at(0) = '#';	result[result.size() - 2] = '#'; result.back() = '\n';
 	return result;
 }
 
@@ -45,20 +45,24 @@ void LAB1::MyApp::showTitle()
 
 void LAB1::MyApp::showStatusBar()
 {
-	if (!stack.empty()) {
+	if (!bufferForStatusBar.empty())
+	{
 		std::string hr{ delimiter() };
 		std::string hr2{ delimiter(' ') };
 
 		out << hr;
 		out << hr2;
-		while(!stack.empty()) {
-			out << generatingStrings(stack.top());
-			stack.pop();
+		
+		while(!bufferForStatusBar.empty()) {
+			out << (enablesFormatStatusBar? generatingStrings(std::move(bufferForStatusBar.front())): bufferForStatusBar.front());
+			bufferForStatusBar.pop();
 		}
+		
 		out << hr2;
 		out << hr;
-
+		
 	}
+	enablesFormatStatusBar = true;
 }
 
 void LAB1::MyApp::showStatusArray()
@@ -75,27 +79,39 @@ void LAB1::MyApp::generatesArrayFromRandom(int begin, int end)
 
 	for (auto&& it : Array) it = rand() % (end - begin) + begin;
 	flagClearArray = false;
-	addStack("Массив успешно заполнен случайными числами!");
+	addInStatusBar("Массив успешно заполнен случайными числами!");
 
 }
 
 
-std::string LAB1::MyApp::generatingStrings(const std::string& str)
-{	
+const std::string LAB1::MyApp::generatingStrings(const std::string&& str, char del)
+{
 	if (str.empty()) throw std::exception("Dont empty string! -> LAB1::MyApp::generatingStrings(const std::string& str)");
-	int parity{ str.length() % 2 == 0};
-	size_t middleSize{ MyApp::getMaxTableLength() > (str.length()+2) ? (MyApp::getMaxTableLength() - str.length() - 2) / 2  : 0 };
-	
-	std::string middle(middleSize-parity, ' ');
-	std::string result{ "#" + middle + str + (parity? " ": "") + middle + "#\n"};
+	int parity{ str.length() % 2 == 0 };
+	size_t middleSize{ getMaxTableLength() > (str.length() + 2) ? (getMaxTableLength() - str.length() - 2) / 2 : 0 };
+
+	std::string middle(middleSize - parity, del);
+	std::string result{ "#" + middle + str + (parity ? " " : "") + middle + "#\n" };
 
 	return result;
 }
 
-std::string LAB1::MyApp::generatingStrings(const std::string& str, const std::string& str2, char del)
+const std::string LAB1::MyApp::generatingStrings(const std::string& str, char del)
+{
+	if (str.empty()) throw std::exception("Dont empty string! -> LAB1::MyApp::generatingStrings(const std::string& str)");
+	int parity{ str.length() % 2 == 0 };
+	size_t middleSize{ getMaxTableLength() > (str.length() + 2) ? (getMaxTableLength() - str.length() - 2) / 2 : 0 };
+
+	std::string middle(middleSize - parity, del);
+	std::string result{ "#" + middle + str + (parity ? " " : "") + middle + "#\n" };
+
+	return result;
+}
+
+const std::string LAB1::MyApp::generatingStrings(const std::string&& str, const std::string&& str2, char del)
 {	
 	size_t len{ str.length() + str2.length()+11};
-	size_t middleSize { MyApp::getMaxTableLength() > len ? MyApp::getMaxTableLength() - len : 11	};
+	size_t middleSize { getMaxTableLength() > len ? getMaxTableLength() - len : 11	};
 
 	std::string middle(middleSize, del);
 	std::string result{ "#    " + str + middle + str2 + "    #\n"};
@@ -103,35 +119,30 @@ std::string LAB1::MyApp::generatingStrings(const std::string& str, const std::st
 	return result;
 }
 
-void LAB1::MyApp::printArray()
-{
-	for (auto&& it : Array) stack.push({ "n: " + std::to_string(it) });	
-}
-
 void LAB1::MyApp::clearArray()
 {
 	Array.clear();
 	setSizeArray();
 	flagClearArray = true;
-	addStack("Массив успешно очищен!");
+	addInStatusBar("Массив успешно очищен!");
 }
 
 void LAB1::MyApp::resizeArrayStep()
 {
-	unsigned int newSize{ getSizeArray() + 100 };
+	size_t newSize{ getSizeArray() + 100 };
 	if (newSize > 500 || newSize < 100) newSize = 100;
 	clearArray();
 	flagClearArray = true;
 	setSizeArray(newSize);
-	addStack("Размер массива изменен! ");
+	addInStatusBar("Размер массива изменен! ");
 }
 
-void LAB1::MyApp::addStack(const std::string& part)
+void LAB1::MyApp::addInStatusBar(const std::string& part)
 {
-	stack.push(part);
+	bufferForStatusBar.emplace(part);
 }
 
-unsigned int LAB1::MyApp::getSizeArray()
+size_t LAB1::MyApp::getSizeArray()
 {
 	return sizeArray;
 }
@@ -141,10 +152,56 @@ size_t LAB1::MyApp::getMaxTableLength()
 	return maxTableLength;
 }
 
-void LAB1::MyApp::setSizeArray(unsigned int newSizeArray)
+void LAB1::MyApp::setSizeArray(size_t newSizeArray)
 {
 	sizeArray = newSizeArray;
 	Array.resize(sizeArray);
+}
+
+void LAB1::MyApp::printArray()
+{
+	if (!flagClearArray) {
+		size_t lengthColumn((maxTableLength - 10) / maxTableColumns);
+
+		std::string defaultString(lengthColumn, ' ');
+		std::string header{ defaultString };
+		std::string header2(maxTableLength - 10 - lengthColumn, ' ');
+
+		header.replace(header.length() / 2, 1, "№");
+		header2.replace(header2.length() / 2, 7, "Колонки");
+		header.back() = '|';
+		header2.at(0) = '|';
+		bufferForStatusBar.emplace(generatingStrings("Вывод массива"));
+		bufferForStatusBar.emplace(delimiter(' '));
+		bufferForStatusBar.emplace(delimiter('-'));
+		bufferForStatusBar.emplace(generatingStrings({ header + header2 }));
+		bufferForStatusBar.emplace(delimiter('-'));
+		bufferForStatusBar.emplace(delimiter(' '));
+
+		static_assert(sizeof(__int64) <= sizeof(size_t), "Unable to safely store an __int64 value in a size_t variable");
+
+		std::string result{};
+		for (auto it{ Array.begin() }, ite{ Array.end() }; it != ite; ++it) {
+
+			std::string tmp{ defaultString };
+			std::string num{ std::to_string(*it) };
+
+			tmp.replace((tmp.length() - num.length()) / 2, num.length(), num);
+			result += tmp;
+			size_t len{ static_cast<size_t>(std::distance(Array.begin(), it)) };
+
+			if ((len + 1) % maxTableColumns == 0) {
+				bufferForStatusBar.emplace(generatingStrings(result));
+				result.clear();
+			}
+		}
+		if (!result.empty()) bufferForStatusBar.emplace(generatingStrings(result));
+	}
+	else {
+		bufferForStatusBar.emplace(generatingStrings("Массив ещё не заполнен!"));
+		enablesFormatStatusBar = false;
+	}
+	if(enablesFormatStatusBar) enablesFormatStatusBar = false;
 }
 
 

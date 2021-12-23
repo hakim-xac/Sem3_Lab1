@@ -4,11 +4,13 @@
 
 
 const size_t LAB1::MyApp::maxTableLength = 80;
-unsigned int LAB1::MyApp::sizeArray = 100;
+const size_t LAB1::MyApp::maxTableColumns = 5;
+size_t LAB1::MyApp::sizeArray = 100;
 bool LAB1::MyApp::flagClearArray = true;
+bool LAB1::MyApp::enablesFormatStatusBar = true;
 
 std::vector<int> LAB1::MyApp::Array(sizeArray);
-std::stack<std::string> LAB1::MyApp::stack{};
+std::queue<std::string> LAB1::MyApp::bufferForStatusBar{};
 std::ostream& LAB1::MyApp::out{ std::cout };
 
 
@@ -47,12 +49,12 @@ int main()
             break;
         case Keys::test:
 
-            MyApp::addStack(std::to_string(MyApp::getSizeArray()));
+            MyApp::addInStatusBar(std::to_string(MyApp::getSizeArray()));
             
             break;
         default:
             std::cout << (int)key << "\n";
-            MyApp::addStack("Не верный код");
+            //MyApp::generatingStrings({'-', std::string("qwerty")});
             break;
         }
     } while (key != Keys::Exit);
