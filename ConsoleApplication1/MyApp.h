@@ -12,6 +12,8 @@ namespace LAB1 {
 	public:
 		static void showTitle();
 		static void showMenu();
+		static void sortByDirectSelection();
+		static void shuffleArray();
 
 		static void showStatusArray();//TODO
 
@@ -32,6 +34,8 @@ namespace LAB1 {
 
 		static size_t getMaxTableLength();
 		static size_t getSizeArray();
+
+		static void directSelection(int* data, size_t size);
 	private:
 
 		static bool flagClearArray;

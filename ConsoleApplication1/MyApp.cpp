@@ -17,9 +17,33 @@ void LAB1::MyApp::showMenu()
 	MyApp::out << generatingStrings("( 3 )", "Просмотр массива", '.');
 	MyApp::out << generatingStrings("( 4 )", "Очистить массив", '.');
 	MyApp::out << generatingStrings("( 5 )", "Изменить размер массива", '.');
-	MyApp::out << generatingStrings("( 6 )", "test", '.');
+	MyApp::out << generatingStrings("( 6 )", "Сортировать массив методом прямого выбора", '.');
+	MyApp::out << generatingStrings("( 7 )", "Сортировать массив методом Шелла", '.');
+	MyApp::out << generatingStrings("( 8 )", "Сортировать массив методом пирамидальной сортировки", '.');
+	MyApp::out << generatingStrings("( 9 )", "Перемешать массив", '.');
 	MyApp::out << generatingStrings("( 0 )", "Выход", '.');
 	MyApp::out << hr;
+}
+
+void LAB1::MyApp::sortByDirectSelection()
+{
+	enablesFormatStatusBar = false;
+	if (!flagClearArray) {
+		bufferForStatusBar.emplace(generatingStrings("Сортировка методом прямого выбора"));
+		bufferForStatusBar.emplace(delimiter(' '));
+		bufferForStatusBar.emplace(delimiter('-'));
+		directSelection(Array.data(), Array.size());
+		printArray();
+	}
+	else {
+		bufferForStatusBar.emplace(generatingStrings("Сортировать нечего!"));
+		bufferForStatusBar.emplace(generatingStrings("Массив ещё не заполнен!"));
+	}
+}
+
+void LAB1::MyApp::shuffleArray()
+{
+
 }
 
 const std::string LAB1::MyApp::delimiter(char del)
@@ -86,37 +110,52 @@ void LAB1::MyApp::generatesArrayFromRandom(int begin, int end)
 
 const std::string LAB1::MyApp::generatingStrings(const std::string&& str, char del)
 {
-	if (str.empty()) throw std::exception("Dont empty string! -> LAB1::MyApp::generatingStrings(const std::string& str)");
-	int parity{ str.length() % 2 == 0 };
-	size_t middleSize{ getMaxTableLength() > (str.length() + 2) ? (getMaxTableLength() - str.length() - 2) / 2 : 0 };
+	try {
+		if (str.empty()) throw std::exception("Dont empty string! -> LAB1::MyApp::generatingStrings(const std::string& str)");
+		int parity{ str.length() % 2 == 0 };
+		size_t middleSize{ getMaxTableLength() > (str.length() + 2) ? (getMaxTableLength() - str.length() - 2) / 2 : 0 };
 
-	std::string middle(middleSize - parity, del);
-	std::string result{ "#" + middle + str + (parity ? " " : "") + middle + "#\n" };
+		std::string middle(middleSize - parity, del);
+		std::string result{ "#" + middle + str + (parity ? " " : "") + middle + "#\n" };
+		return result;
+	}
+	catch (const std::exception& ex) {
+		std::cout << ex.what();
+	}
 
-	return result;
 }
 
 const std::string LAB1::MyApp::generatingStrings(const std::string& str, char del)
 {
-	if (str.empty()) throw std::exception("Dont empty string! -> LAB1::MyApp::generatingStrings(const std::string& str)");
-	int parity{ str.length() % 2 == 0 };
-	size_t middleSize{ getMaxTableLength() > (str.length() + 2) ? (getMaxTableLength() - str.length() - 2) / 2 : 0 };
+	try {
+		if (str.empty()) throw std::exception("Dont empty string! -> LAB1::MyApp::generatingStrings(const std::string& str)");
+		int parity{ str.length() % 2 == 0 };
+		size_t middleSize{ getMaxTableLength() > (str.length() + 2) ? (getMaxTableLength() - str.length() - 2) / 2 : 0 };
 
-	std::string middle(middleSize - parity, del);
-	std::string result{ "#" + middle + str + (parity ? " " : "") + middle + "#\n" };
+		std::string middle(middleSize - parity, del);
+		std::string result{ "#" + middle + str + (parity ? " " : "") + middle + "#\n" };
 
-	return result;
+		return result;
+	}
+	catch (const std::exception& ex) {
+		std::cout << ex.what();
+	}
 }
 
 const std::string LAB1::MyApp::generatingStrings(const std::string&& str, const std::string&& str2, char del)
 {	
-	size_t len{ str.length() + str2.length()+11};
-	size_t middleSize { getMaxTableLength() > len ? getMaxTableLength() - len : 11	};
+	try{
+		size_t len{ str.length() + str2.length()+11};
+		size_t middleSize { getMaxTableLength() > len ? getMaxTableLength() - len : 11	};
 
-	std::string middle(middleSize, del);
-	std::string result{ "#    " + str + middle + str2 + "    #\n"};
+		std::string middle(middleSize, del);
+		std::string result{ "#    " + str + middle + str2 + "    #\n"};
 
-	return result;
+		return result;
+	}
+	catch (const std::exception& ex) {
+		std::cout << ex.what();
+	}
 }
 
 void LAB1::MyApp::clearArray()
@@ -147,6 +186,18 @@ size_t LAB1::MyApp::getSizeArray()
 	return sizeArray;
 }
 
+void LAB1::MyApp::directSelection(int* data, size_t size)
+{
+	int min;
+	for (size_t i{}; i < size - 1; ++i) {
+		min = i;
+		for (size_t j{ i + 1 }; j < size; ++j) {
+			if (data[j] < data[min]) min = j;
+		}
+		std::swap(data[i], data[min]);
+	}
+}
+
 size_t LAB1::MyApp::getMaxTableLength()
 {
 	return maxTableLength;
@@ -170,13 +221,12 @@ void LAB1::MyApp::printArray()
 		header.replace(header.length() / 2, 1, "№");
 		header2.replace(header2.length() / 2, 7, "Колонки");
 		header.back() = '|';
-		header2.at(0) = '|';
+		bufferForStatusBar.emplace(delimiter(' '));
 		bufferForStatusBar.emplace(generatingStrings("Вывод массива"));
 		bufferForStatusBar.emplace(delimiter(' '));
 		bufferForStatusBar.emplace(delimiter('-'));
 		bufferForStatusBar.emplace(generatingStrings({ header + header2 }));
 		bufferForStatusBar.emplace(delimiter('-'));
-		bufferForStatusBar.emplace(delimiter(' '));
 
 		static_assert(sizeof(__int64) <= sizeof(size_t), "Unable to safely store an __int64 value in a size_t variable");
 
@@ -186,12 +236,16 @@ void LAB1::MyApp::printArray()
 			std::string tmp{ defaultString };
 			std::string num{ std::to_string(*it) };
 
+			size_t len{ static_cast<size_t>(std::distance(Array.begin(), it)) };
+			if ((len+1) % maxTableColumns != 0) {
+				tmp.replace(tmp.size()-1, 1, "|");
+			}
 			tmp.replace((tmp.length() - num.length()) / 2, num.length(), num);
 			result += tmp;
-			size_t len{ static_cast<size_t>(std::distance(Array.begin(), it)) };
 
 			if ((len + 1) % maxTableColumns == 0) {
 				bufferForStatusBar.emplace(generatingStrings(result));
+				bufferForStatusBar.emplace(delimiter('-'));
 				result.clear();
 			}
 		}

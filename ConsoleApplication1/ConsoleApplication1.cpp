@@ -47,14 +47,23 @@ int main()
         case Keys::ResizeArray:
             MyApp::resizeArrayStep();
             break;
-        case Keys::test:
+        case Keys::SortByDirectSelection:
+            MyApp::sortByDirectSelection();
+            break;
+        case Keys::ShellSort:
+            std::cout << "Shell sort: " << (int)key << "\n";
+            system("pause");
+            //MyApp::addInStatusBar(std::to_string(MyApp::getSizeArray()));
 
-            MyApp::addInStatusBar(std::to_string(MyApp::getSizeArray()));
-            
+            break;
+        case Keys::HeapSort:
+            std::cout << "Heap sort: " << (int)key << "\n";
+            system("pause");
+            //MyApp::addInStatusBar(std::to_string(MyApp::getSizeArray()));
+
             break;
         default:
-            std::cout << (int)key << "\n";
-            //MyApp::generatingStrings({'-', std::string("qwerty")});
+            MyApp::addInStatusBar("Введена не верная команда!");
             break;
         }
     } while (key != Keys::Exit);
