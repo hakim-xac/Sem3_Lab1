@@ -146,12 +146,10 @@
     <ClCompile Include="ConsoleApplication1.cpp" />
     <ClCompile Include="enums.cpp" />
     <ClCompile Include="MyApp.cpp" />
-    <ClCompile Include="MyArray.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="enums.h" />
     <ClInclude Include="MyApp.h" />
-    <ClInclude Include="MyArray.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
