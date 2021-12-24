@@ -217,7 +217,6 @@ void LAB1::MyApp::showPrintArray()
 		header.replace(header.length() / 2, 1, "№");
 		header2.replace(header2.length() / 2, 7, "Колонки");
 		header.back() = '|';
-		bufferForStatusBar.emplace(delimiter(' '));
 		bufferForStatusBar.emplace(generatingStrings("Вывод массива"));
 		bufferForStatusBar.emplace(delimiter(' '));
 		bufferForStatusBar.emplace(delimiter('-'));
@@ -422,4 +421,5 @@ void LAB1::MyApp::showFieldsByTopic()
 	bufferForStatusBar.emplace(delimiter('-'));
 	bufferForStatusBar.emplace(generatingStrings("Количество пересылок:", std::to_string(getNumberOfShipments())));
 	bufferForStatusBar.emplace(delimiter('-'));
+	bufferForStatusBar.emplace(delimiter(' '));
 }
