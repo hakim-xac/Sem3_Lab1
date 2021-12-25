@@ -19,9 +19,12 @@ void LAB1::MyApp::showMenu()
 	MyApp::out << generatingStrings("( 2 )", "Просмотр массива", '.');
 	MyApp::out << generatingStrings("( 3 )", "Очистить массив", '.');
 	MyApp::out << generatingStrings("( 4 )", "Изменить размер массива", '.');
-	MyApp::out << generatingStrings("( 5 )", "Сортировать массив методом прямого выбора", '.');
-	MyApp::out << generatingStrings("( 6 )", "Сортировать массив методом Шелла", '.');
-	MyApp::out << generatingStrings("( 7 )", "Сортировать массив методом Хоара", '.');
+	MyApp::out << generatingStrings("( z )", "Сортировать массив методом прямого выбора по Возрастанию", '.');
+	MyApp::out << generatingStrings("( x )", "Сортировать массив методом прямого выбора по Убыванию", '.');
+	MyApp::out << generatingStrings("( c )", "Сортировать массив методом Шелла по Возрастанию", '.');
+	MyApp::out << generatingStrings("( v )", "Сортировать массив методом Шелла по Убыванию", '.');
+	MyApp::out << generatingStrings("( b )", "Сортировать массив методом Хоара по Возрастанию", '.');
+	MyApp::out << generatingStrings("( n )", "Сортировать массив методом Хоара по Убыванию", '.');
 	MyApp::out << generatingStrings("( 8 )", "Перемешать массив", '.');
 	MyApp::out << generatingStrings("( 0 )", "Выход", '.');
 	MyApp::out << hr;
@@ -169,6 +172,16 @@ void LAB1::MyApp::addInStatusBar(const std::string& part)
 }
 
 
+void LAB1::MyApp::addInStatusBar(const std::string&& part)
+{
+	bufferForStatusBar.emplace(delimiter());
+	bufferForStatusBar.emplace(delimiter(' '));
+	bufferForStatusBar.emplace(generatingStrings(part));
+	bufferForStatusBar.emplace(delimiter(' '));
+	bufferForStatusBar.emplace(delimiter());
+}
+
+
 size_t LAB1::MyApp::getSizeArray()
 {
 	return sizeArray;
@@ -249,7 +262,6 @@ void LAB1::MyApp::showGeneratedRandom()
 	generatesArrayFromRandom(Array.data(), Array.size());
 	flagClearArray = false;
 	addInStatusBar("Массив успешно заполнен случайными числами!");
-	showSeriesCountung();
 }
 
 
@@ -260,17 +272,19 @@ void LAB1::MyApp::generatesArrayFromRandom(int* data, size_t sizeArray, int begi
 }
 
 
-void LAB1::MyApp::showSeriesCountung()
+void LAB1::MyApp::showSeriesAndHashesCountung()
 {
 	if (!flagClearArray) {
-		bufferForStatusBar.emplace(delimiter(' '));
-		bufferForStatusBar.emplace(generatingStrings("Подсчет количества серий в массиве"));
+		bufferForStatusBar.emplace(generatingStrings("Подсчет количества серий и контрольной суммы в массиве"));
 		bufferForStatusBar.emplace(generatingStrings("Серия - неубывающая последовательность элементов в массиве"));
 		bufferForStatusBar.emplace(delimiter(' '));
 		bufferForStatusBar.emplace(delimiter('-'));
 		try {
-			int count{ seriesCountung(Array.data(), Array.size()) };
-			bufferForStatusBar.emplace(generatingStrings("Количество серий", std::to_string(count)));
+			int countSeries{ seriesCountung(Array.data(), Array.size()) };
+			int countHash{ hashCountung(Array.data(), Array.size()) };
+			bufferForStatusBar.emplace(generatingStrings("Количество серий:", std::to_string(countSeries)));
+			bufferForStatusBar.emplace(delimiter('-'));
+			bufferForStatusBar.emplace(generatingStrings("Хеш:", std::to_string(countHash)));
 		}
 		catch (const std::exception& ex) {
 			bufferForStatusBar.emplace(generatingStrings(ex.what()));
@@ -278,7 +292,7 @@ void LAB1::MyApp::showSeriesCountung()
 		bufferForStatusBar.emplace(delimiter('-'));
 	}
 	else {
-		bufferForStatusBar.emplace(generatingStrings("Нечего считать!"));
+		bufferForStatusBar.emplace(generatingStrings("Нечего подсчитать!"));
 		bufferForStatusBar.emplace(generatingStrings("Массив ещё не заполнен!"));
 	}
 }
@@ -289,19 +303,39 @@ int LAB1::MyApp::seriesCountung(int* data, size_t size)
 	if (data == nullptr) throw std::exception("In void LAB1::MyApp::directSelectionSort(int* data, size_t size)\
  data == nullptr");
 	int countSeries{};
-	for (size_t i{}; i < size-1; ++i) {
+	for (size_t i{}; i < size - 1; ++i) {
 		if (data[i] > data[i + 1]) ++countSeries;
 	}
 	return countSeries;
 }
 
 
-void LAB1::MyApp::sortByDirectSelection()
+int LAB1::MyApp::hashCountung(int* data, size_t size)
+{
+	if (data == nullptr) throw std::exception("In void LAB1::MyApp::directSelectionSort(int* data, size_t size)\
+ data == nullptr");
+	int countHash{};
+	size_t sizeArray{ size };
+	while (sizeArray)
+	{
+		countHash += sizeArray & 1;
+		sizeArray >>= 1;
+	}	
+	return countHash;
+}
+
+
+void LAB1::MyApp::sortByDirectSelection(bool direction)
 {
 	if (!flagClearArray) {
 
-		addInStatusBar("Сортировка методом прямого выбора");
-		directSelectionSort(Array.data(), Array.size());
+		addInStatusBar("Сортировка методом прямого выбора По " + (direction)? "возрастанию": "убыванию");
+		try {
+			directSelectionSort(Array.data(), Array.size(), direction);
+		}
+		catch (const std::exception& ex) {
+			addInStatusBar(ex.what());
+		}
 		showFieldsByTopic();
 	}
 	else {
@@ -310,11 +344,16 @@ void LAB1::MyApp::sortByDirectSelection()
 }
 
 
-void LAB1::MyApp::sortByShell()
+void LAB1::MyApp::sortByShell(bool direction)
 {
 	if (!flagClearArray) {
 		addInStatusBar("Сортировка методом Шелла");
-		directSelectionSort(Array.data(), Array.size());
+		try {
+			shellSort(Array.data(), Array.size(), direction);
+		}
+		catch (const std::exception& ex) {
+			addInStatusBar(ex.what());
+		}
 		showFieldsByTopic();
 	}
 	else {
@@ -323,7 +362,7 @@ void LAB1::MyApp::sortByShell()
 }
 
 
-void LAB1::MyApp::sortByHoare()
+void LAB1::MyApp::sortByHoare(bool direction)
 {
 	if (!flagClearArray) {
 		addInStatusBar("Сортировка методом Хоара");
@@ -331,10 +370,10 @@ void LAB1::MyApp::sortByHoare()
 		numberOfComparisons = 0;
 		numberOfShipments = 0;
 		try {
-			hoareSort(Array.data(), 0, Array.size() - 1);
+			hoareSort(Array.data(), 0, Array.size() - 1, direction);
 		}
 		catch (const std::exception& ex) {
-			bufferForStatusBar.emplace(ex.what());
+			addInStatusBar(ex.what());
 		}
 		showFieldsByTopic();
 	}
@@ -364,7 +403,7 @@ void LAB1::MyApp::shuffleArray()
 }
 
 
-void LAB1::MyApp::directSelectionSort(int* data, size_t size)
+void LAB1::MyApp::directSelectionSort(int* data, size_t size, bool direction)
 {
 	if (data == nullptr) throw std::exception("In void LAB1::MyApp::directSelectionSort(int* data, size_t size)\
  data == nullptr");
@@ -375,7 +414,12 @@ void LAB1::MyApp::directSelectionSort(int* data, size_t size)
 		min = i;
 		for (size_t j{ i + 1 }; j < size; ++j) {
 			++numberOfComparisons;
-			if (data[j] < data[min]) min = j;			
+			if (direction) {
+				if (data[j] < data[min]) min = j;
+			}
+			else {
+				if (data[j] > data[min]) min = j;
+			}
 		}
 		std::swap(data[i], data[min]);
 		++numberOfShipments;
@@ -383,18 +427,24 @@ void LAB1::MyApp::directSelectionSort(int* data, size_t size)
 }
 
 
-void LAB1::MyApp::shellSort(int* data, size_t size)
+void LAB1::MyApp::shellSort(int* data, size_t size, bool direction)
 {
 	if (data == nullptr) throw std::exception("In void LAB1::MyApp::shellSort(int* data, size_t size)\
  data == nullptr");
 	numberOfComparisons = 0;
 	numberOfShipments = 0;
-	for (size_t step{ size / 2 }; step; step /= 2) {
+	for (size_t step{ size >> 1 }; step; step >>= 1) {
 		for (size_t i{ step }, j{}; i < size; ++i) {
 			int tmp{ data[i] };
 			for (j = i; j >= step; j -= step) {
-				if (tmp < data[j - step]) data[j] = data[j - step];
-				else break;
+				if (direction) {
+					if (tmp < data[j - step]) data[j] = data[j - step];
+					else break;
+				}
+				else {
+					if (tmp > data[j - step]) data[j] = data[j - step];
+					else break;
+				}
 				++numberOfComparisons;
 			}
 			data[j] = tmp;
@@ -405,7 +455,7 @@ void LAB1::MyApp::shellSort(int* data, size_t size)
 }
 
 
-void LAB1::MyApp::hoareSort(int* data, int begin, int end)
+void LAB1::MyApp::hoareSort(int* data, int begin, int end, bool direction)
 {
 	if (data == nullptr) throw std::exception("In void LAB1::MyApp::hoareSort(int* data, int begin, int end)\
  data == nullptr");
@@ -414,8 +464,14 @@ void LAB1::MyApp::hoareSort(int* data, int begin, int end)
 
 	while (i <= j)
 	{
-		while (data[i] < x) ++i;
-		while (data[j] > x) --j;
+		if (direction) {
+			while (data[i] < x) ++i;
+			while (data[j] > x) --j;
+		}
+		else {
+			while (data[i] > x) ++i;
+			while (data[j] < x) --j;
+		}
 		++numberOfComparisons;
 		if (i <= j) {
 			if (i < j) {
@@ -426,8 +482,8 @@ void LAB1::MyApp::hoareSort(int* data, int begin, int end)
 			--j;
 		}
 	}
-	if (i < end) hoareSort(data, i, end);
-	if (begin < j) hoareSort(data, begin, j);
+	if (i < end) hoareSort(data, i, end, direction);
+	if (begin < j) hoareSort(data, begin, j, direction);
 }
 
 void LAB1::MyApp::showFieldsByTopic()
@@ -442,3 +498,4 @@ void LAB1::MyApp::showFieldsByTopic()
 	bufferForStatusBar.emplace(delimiter('-'));
 	bufferForStatusBar.emplace(delimiter(' '));
 }
+

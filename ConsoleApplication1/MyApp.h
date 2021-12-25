@@ -15,18 +15,17 @@ namespace LAB1 {
 		static void showMenu();
 
 		static void showGeneratedRandom();
+		static void showSeriesAndHashesCountung();
 
-		static void sortByDirectSelection();
-		static void sortByShell();
-		static void sortByHoare();
+		static void sortByDirectSelection(bool direction = true);
+		static void sortByShell(bool direction = true);
+		static void sortByHoare(bool direction = true);
 
 		static void showShuffleArray();
 		static void shuffleArray();
 
 		static void showStatusArray();
-		static void showSeriesCountung();
 
-		static int seriesCountung(int* data, size_t size);
 
 		static void generatesArrayFromRandom(int* data, size_t sizeArray, int begin=0, int end=std::numeric_limits<int>::max());
 
@@ -43,6 +42,7 @@ namespace LAB1 {
 		static void setSizeArray(size_t newSizeArray= sizeArray);
 		static void resizeArrayStep();
 		static void addInStatusBar(const std::string& part);
+		static void addInStatusBar(const std::string&& part);
 
 		static size_t getMaxTableLength();
 		static size_t getSizeArray();
@@ -53,9 +53,13 @@ namespace LAB1 {
 
 		static void showFieldsByTopic();
 
-		static void directSelectionSort(int* data, size_t size);
-		static void shellSort(int* data, size_t size);
-		static void hoareSort(int* data, int begin, int end);
+		static int seriesCountung(int* data, size_t size);
+		static int hashCountung(int* data, size_t size);
+
+		static void directSelectionSort(int* data, size_t size, bool direction = true);
+
+		static void shellSort(int* data, size_t size, bool direction = true);
+		static void hoareSort(int* data, int begin, int end, bool direction = true);
 
 		static bool flagClearArray;
 		static std::queue <std::string> bufferForStatusBar;

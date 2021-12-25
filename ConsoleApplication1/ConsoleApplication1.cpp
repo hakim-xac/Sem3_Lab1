@@ -47,17 +47,29 @@ int main()
         case Keys::ResizeArray:
             MyApp::resizeArrayStep();
             break;
-        case Keys::SortByDirectSelection:
+        case Keys::SortByDirectSelectionAsk:
             MyApp::sortByDirectSelection();
             break;
-        case Keys::ShellSort:
+        case Keys::SortByDirectSelectionDesk:
+            MyApp::sortByDirectSelection(false);
+            break;
+        case Keys::ShellSortAsk:
             MyApp::sortByShell();
             break;
-        case Keys::HoareSort:
+        case Keys::ShellSortDesc:
+            MyApp::sortByShell(false);
+            break;
+        case Keys::HoareSortAsk:
             MyApp::sortByHoare();
+            break;
+        case Keys::HoareSortDesc:
+            MyApp::sortByHoare(false);
             break;
         case Keys::ShuffleArray:
             MyApp::showShuffleArray();
+            break;
+        case Keys::ShowSeries:
+            MyApp::showSeriesAndHashesCountung();
             break;
         default:
             MyApp::addInStatusBar("Введена не верная команда! " + std::to_string(static_cast<int>(key)));
