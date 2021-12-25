@@ -24,6 +24,9 @@ namespace LAB1 {
 		static void shuffleArray();
 
 		static void showStatusArray();
+		static void showSeriesCountung();
+
+		static int seriesCountung(int* data, size_t size);
 
 		static void generatesArrayFromRandom(int* data, size_t sizeArray, int begin=0, int end=std::numeric_limits<int>::max());
 
@@ -55,7 +58,6 @@ namespace LAB1 {
 		static void hoareSort(int* data, int begin, int end);
 
 		static bool flagClearArray;
-		static bool enablesFormatStatusBar;
 		static std::queue <std::string> bufferForStatusBar;
 		static std::vector <int> Array;
 

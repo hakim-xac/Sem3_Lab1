@@ -10,7 +10,6 @@ size_t LAB1::MyApp::numberOfComparisons{};
 size_t LAB1::MyApp::numberOfShipments{};
 
 bool LAB1::MyApp::flagClearArray{ true };
-bool LAB1::MyApp::enablesFormatStatusBar{ true };
 
 std::vector<int> LAB1::MyApp::Array(sizeArray);
 std::queue<std::string> LAB1::MyApp::bufferForStatusBar{};
@@ -39,8 +38,6 @@ int main()
         case Keys::GeneratingRandomArray:
             MyApp::showGeneratedRandom();
             break;
-        case Keys::LoadArrayFromFile:   //TODO
-            break;
         case Keys::PrintArray:
             MyApp::showPrintArray();
             break;
@@ -63,8 +60,7 @@ int main()
             MyApp::showShuffleArray();
             break;
         default:
-            MyApp::addInStatusBar("Введена не верная команда!");
-            MyApp::addInStatusBar(std::to_string(static_cast<int>(key)));
+            MyApp::addInStatusBar("Введена не верная команда! " + std::to_string(static_cast<int>(key)));
             break;
         }
     } while (key != Keys::Exit);

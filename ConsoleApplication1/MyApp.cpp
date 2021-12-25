@@ -16,14 +16,13 @@ void LAB1::MyApp::showMenu()
 	MyApp::out << generatingStrings("Нажмите на клавишу и нажмите ВВОД");;
 	MyApp::out << delimiter('_');
 	MyApp::out << generatingStrings("( 1 )", "Генерация случайного массива", '.');
-	MyApp::out << generatingStrings("( 2 )", "Загрузка массива из файла", '.');
-	MyApp::out << generatingStrings("( 3 )", "Просмотр массива", '.');
-	MyApp::out << generatingStrings("( 4 )", "Очистить массив", '.');
-	MyApp::out << generatingStrings("( 5 )", "Изменить размер массива", '.');
-	MyApp::out << generatingStrings("( 6 )", "Сортировать массив методом прямого выбора", '.');
-	MyApp::out << generatingStrings("( 7 )", "Сортировать массив методом Шелла", '.');
-	MyApp::out << generatingStrings("( 8 )", "Сортировать массив методом Хоара", '.');
-	MyApp::out << generatingStrings("( 9 )", "Перемешать массив", '.');
+	MyApp::out << generatingStrings("( 2 )", "Просмотр массива", '.');
+	MyApp::out << generatingStrings("( 3 )", "Очистить массив", '.');
+	MyApp::out << generatingStrings("( 4 )", "Изменить размер массива", '.');
+	MyApp::out << generatingStrings("( 5 )", "Сортировать массив методом прямого выбора", '.');
+	MyApp::out << generatingStrings("( 6 )", "Сортировать массив методом Шелла", '.');
+	MyApp::out << generatingStrings("( 7 )", "Сортировать массив методом Хоара", '.');
+	MyApp::out << generatingStrings("( 8 )", "Перемешать массив", '.');
 	MyApp::out << generatingStrings("( 0 )", "Выход", '.');
 	MyApp::out << hr;
 }
@@ -54,7 +53,7 @@ void LAB1::MyApp::showStatusBar()
 		out << hr2;
 		
 		while(!bufferForStatusBar.empty()) {
-			out << (enablesFormatStatusBar? generatingStrings(std::move(bufferForStatusBar.front())): bufferForStatusBar.front());
+			out << bufferForStatusBar.front();
 			bufferForStatusBar.pop();
 		}
 		
@@ -62,7 +61,6 @@ void LAB1::MyApp::showStatusBar()
 		out << hr;
 		
 	}
-	enablesFormatStatusBar = true;
 }
 
 
@@ -80,14 +78,6 @@ const std::string LAB1::MyApp::delimiter(char del)
 	std::string result(maxTableLength, del);
 	result.at(0) = '#';	result[result.size() - 2] = '#'; result.back() = '\n';
 	return result;
-}
-
-
-void LAB1::MyApp::showGeneratedRandom()
-{
-	generatesArrayFromRandom(Array.data(), Array.size());
-	flagClearArray = false;
-	addInStatusBar("Массив успешно заполнен случайными числами!");
 }
 
 
@@ -154,6 +144,7 @@ void LAB1::MyApp::clearArray()
 	setSizeArray();
 	flagClearArray = true;
 	addInStatusBar("Массив успешно очищен!");
+	
 }
 
 
@@ -164,13 +155,17 @@ void LAB1::MyApp::resizeArrayStep()
 	if ( !flagClearArray ) clearArray();
 	flagClearArray = true;
 	setSizeArray(newSize);
-	addInStatusBar("Размер массива изменен! ");
+	addInStatusBar("Размер массива изменен!");
 }
 
 
 void LAB1::MyApp::addInStatusBar(const std::string& part)
 {
-	bufferForStatusBar.emplace(part);
+	bufferForStatusBar.emplace(delimiter());
+	bufferForStatusBar.emplace(delimiter(' '));
+	bufferForStatusBar.emplace(generatingStrings(part));
+	bufferForStatusBar.emplace(delimiter(' '));
+	bufferForStatusBar.emplace(delimiter());
 }
 
 
@@ -209,29 +204,18 @@ void LAB1::MyApp::showPrintArray()
 {
 
 	if (!flagClearArray) {
-		size_t lengthColumn((maxTableLength - 10) / maxTableColumns);
-		std::string defaultString(lengthColumn, ' ');
-		std::string header{ defaultString };
-		std::string header2(maxTableLength - 10 - lengthColumn, ' ');
-
-		header.replace(header.length() / 2, 1, "№");
-		header2.replace(header2.length() / 2, 7, "Колонки");
-		header.back() = '|';
-		bufferForStatusBar.emplace(generatingStrings("Вывод массива"));
-		bufferForStatusBar.emplace(delimiter(' '));
-		bufferForStatusBar.emplace(delimiter('-'));
-		bufferForStatusBar.emplace(generatingStrings({ header + header2 }));
-		bufferForStatusBar.emplace(delimiter('-'));
+		addInStatusBar("Вывод массива");
 
 		static_assert(sizeof(__int64) <= sizeof(size_t), "Unable to safely store an __int64 value in a size_t variable");
+
+		size_t lengthColumn((maxTableLength - 10) / maxTableColumns);
+		std::string defaultString(lengthColumn, ' ');
 		printArray(defaultString);
 		
 	}
 	else {
-		bufferForStatusBar.emplace(generatingStrings("Массив ещё не заполнен!"));
-		enablesFormatStatusBar = false;
+		addInStatusBar("Массив ещё не заполнен!");
 	}
-	if (enablesFormatStatusBar) enablesFormatStatusBar = false;
 }
 
 
@@ -260,6 +244,15 @@ void LAB1::MyApp::printArray(const std::string& defaultString)
 }
 
 
+void LAB1::MyApp::showGeneratedRandom()
+{
+	generatesArrayFromRandom(Array.data(), Array.size());
+	flagClearArray = false;
+	addInStatusBar("Массив успешно заполнен случайными числами!");
+	showSeriesCountung();
+}
+
+
 void LAB1::MyApp::generatesArrayFromRandom(int* data, size_t sizeArray, int begin, int end)
 {
 	srand(static_cast<unsigned int>(time(0)));
@@ -267,81 +260,98 @@ void LAB1::MyApp::generatesArrayFromRandom(int* data, size_t sizeArray, int begi
 }
 
 
-void LAB1::MyApp::sortByDirectSelection()
+void LAB1::MyApp::showSeriesCountung()
 {
-	enablesFormatStatusBar = false;
 	if (!flagClearArray) {
-		bufferForStatusBar.emplace(generatingStrings("Сортировка методом прямого выбора"));
+		bufferForStatusBar.emplace(delimiter(' '));
+		bufferForStatusBar.emplace(generatingStrings("Подсчет количества серий в массиве"));
+		bufferForStatusBar.emplace(generatingStrings("Серия - неубывающая последовательность элементов в массиве"));
 		bufferForStatusBar.emplace(delimiter(' '));
 		bufferForStatusBar.emplace(delimiter('-'));
-
-		directSelectionSort(Array.data(), Array.size());
-		showFieldsByTopic();
-		bufferForStatusBar.emplace(generatingStrings("Массив отсортирован методом прямого выбора"));
-		//showPrintArray();
+		try {
+			int count{ seriesCountung(Array.data(), Array.size()) };
+			bufferForStatusBar.emplace(generatingStrings("Количество серий", std::to_string(count)));
+		}
+		catch (const std::exception& ex) {
+			bufferForStatusBar.emplace(generatingStrings(ex.what()));
+		}
+		bufferForStatusBar.emplace(delimiter('-'));
 	}
 	else {
-		bufferForStatusBar.emplace(generatingStrings("Сортировать нечего!"));
+		bufferForStatusBar.emplace(generatingStrings("Нечего считать!"));
 		bufferForStatusBar.emplace(generatingStrings("Массив ещё не заполнен!"));
+	}
+}
+
+
+int LAB1::MyApp::seriesCountung(int* data, size_t size)
+{
+	if (data == nullptr) throw std::exception("In void LAB1::MyApp::directSelectionSort(int* data, size_t size)\
+ data == nullptr");
+	int countSeries{};
+	for (size_t i{}; i < size-1; ++i) {
+		if (data[i] > data[i + 1]) ++countSeries;
+	}
+	return countSeries;
+}
+
+
+void LAB1::MyApp::sortByDirectSelection()
+{
+	if (!flagClearArray) {
+
+		addInStatusBar("Сортировка методом прямого выбора");
+		directSelectionSort(Array.data(), Array.size());
+		showFieldsByTopic();
+	}
+	else {
+		addInStatusBar("Сортировать нечего! Массив ещё не заполнен!");
 	}
 }
 
 
 void LAB1::MyApp::sortByShell()
 {
-	enablesFormatStatusBar = false;
 	if (!flagClearArray) {
-		bufferForStatusBar.emplace(generatingStrings("Сортировка методом Шелла"));
-		bufferForStatusBar.emplace(delimiter(' '));
-		bufferForStatusBar.emplace(delimiter('-'));
-
+		addInStatusBar("Сортировка методом Шелла");
 		directSelectionSort(Array.data(), Array.size());
 		showFieldsByTopic();
-		bufferForStatusBar.emplace(generatingStrings("Массив отсортирован методом Шелла"));
-		//showPrintArray();
 	}
 	else {
-		bufferForStatusBar.emplace(generatingStrings("Сортировать нечего!"));
-		bufferForStatusBar.emplace(generatingStrings("Массив ещё не заполнен!"));
+		addInStatusBar("Сортировать нечего! Массив ещё не заполнен!");
 	}
 }
 
 
 void LAB1::MyApp::sortByHoare()
 {
-	enablesFormatStatusBar = false;
 	if (!flagClearArray) {
-		bufferForStatusBar.emplace(generatingStrings("Массив успешно перемешан"));
-		bufferForStatusBar.emplace(delimiter(' '));
-		bufferForStatusBar.emplace(delimiter('-'));
+		addInStatusBar("Сортировка методом Хоара");
 
 		numberOfComparisons = 0;
 		numberOfShipments = 0;
-		hoareSort(Array.data(), 0, Array.size() - 1);
+		try {
+			hoareSort(Array.data(), 0, Array.size() - 1);
+		}
+		catch (const std::exception& ex) {
+			bufferForStatusBar.emplace(ex.what());
+		}
 		showFieldsByTopic();
-		bufferForStatusBar.emplace(generatingStrings("Массив отсортирован методом Хоара"));
-		//showPrintArray();
 	}
 	else {
-
-		bufferForStatusBar.emplace(generatingStrings("Сортировать нечего!"));
-		bufferForStatusBar.emplace(generatingStrings("Массив ещё не заполнен!"));
+		addInStatusBar("Сортировать нечего! Массив ещё не заполнен!");
 	}
 }
 
 
 void LAB1::MyApp::showShuffleArray()
 {
-	enablesFormatStatusBar = false;
 	if (!flagClearArray) {
-		bufferForStatusBar.emplace(generatingStrings("Массив успешно перемешан"));
-		bufferForStatusBar.emplace(delimiter(' '));
-		bufferForStatusBar.emplace(delimiter('-'));
 		shuffleArray();
-		//showPrintArray();
+		addInStatusBar("Массив успешно перемешан");
 	}
 	else {
-		bufferForStatusBar.emplace(generatingStrings("Для того, чтобы перемешать, необходимо заполнить массив!"));
+		addInStatusBar("Для того, чтобы перемешать, необходимо заполнить массив!");
 	}
 }
 
@@ -356,6 +366,8 @@ void LAB1::MyApp::shuffleArray()
 
 void LAB1::MyApp::directSelectionSort(int* data, size_t size)
 {
+	if (data == nullptr) throw std::exception("In void LAB1::MyApp::directSelectionSort(int* data, size_t size)\
+ data == nullptr");
 	numberOfComparisons = 0;
 	numberOfShipments = 0;
 	size_t min;
@@ -373,6 +385,8 @@ void LAB1::MyApp::directSelectionSort(int* data, size_t size)
 
 void LAB1::MyApp::shellSort(int* data, size_t size)
 {
+	if (data == nullptr) throw std::exception("In void LAB1::MyApp::shellSort(int* data, size_t size)\
+ data == nullptr");
 	numberOfComparisons = 0;
 	numberOfShipments = 0;
 	for (size_t step{ size / 2 }; step; step /= 2) {
@@ -393,20 +407,25 @@ void LAB1::MyApp::shellSort(int* data, size_t size)
 
 void LAB1::MyApp::hoareSort(int* data, int begin, int end)
 {
+	if (data == nullptr) throw std::exception("In void LAB1::MyApp::hoareSort(int* data, int begin, int end)\
+ data == nullptr");
 	int i{ begin }, j{ end };
 	int x{ data[(begin + end) / 2] };
 
-	do {
+	while (i <= j)
+	{
 		while (data[i] < x) ++i;
 		while (data[j] > x) --j;
 		++numberOfComparisons;
 		if (i <= j) {
-			++numberOfShipments;
-			if (i < j) std::swap(data[i], data[j]);
+			if (i < j) {
+				std::swap(data[i], data[j]);
+				++numberOfShipments;
+			}
 			++i;
 			--j;
 		}
-	} while (i <= j);
+	}
 	if (i < end) hoareSort(data, i, end);
 	if (begin < j) hoareSort(data, begin, j);
 }
