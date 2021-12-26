@@ -565,6 +565,7 @@ void LAB1::MyApp::directSelectionSort(int* data, size_t size, bool direction)
 	size_t min;
 	for (size_t i{}; i < size - 1; ++i) {
 		min = i;
+		++numberOfShipments;
 		for (size_t j{ i + 1 }; j < size; ++j) {
 			++numberOfComparisons;
 			if (direction) {
@@ -575,8 +576,8 @@ void LAB1::MyApp::directSelectionSort(int* data, size_t size, bool direction)
 			}
 		}
 		std::swap(data[i], data[min]);
-		++numberOfShipments;
 	}
+	numberOfShipments *= 3;
 }
 
 
@@ -599,6 +600,7 @@ void LAB1::MyApp::shellSort(int* data, size_t size, bool direction)
 		for (size_t i{ step }, j{}; i < size; ++i) {
 			int tmp{ data[i] };
 			for (j = i; j >= step; j -= step) {
+				++numberOfComparisons;
 				if (direction) {
 					if (tmp < data[j - step]) data[j] = data[j - step];
 					else break;
@@ -607,7 +609,6 @@ void LAB1::MyApp::shellSort(int* data, size_t size, bool direction)
 					if (tmp > data[j - step]) data[j] = data[j - step];
 					else break;
 				}
-				++numberOfComparisons;
 			}
 			data[j] = tmp;
 			++numberOfShipments;
@@ -647,7 +648,7 @@ void LAB1::MyApp::hoareSort(int* data, int begin, int end, bool direction)
 		if (i <= j) {
 			if (i < j) {
 				std::swap(data[i], data[j]);
-				++numberOfShipments;
+				numberOfShipments += 3; // tmp = data[j]; data[j] = data[i]; data[i] = tmp; 3 перестановки
 			}
 			++i;
 			--j;
@@ -669,6 +670,8 @@ void LAB1::MyApp::showFieldsByTopic()
 	bufferForStatusBar.emplace(generatingStrings("Количество сравнений:", std::to_string(getNumberOfComparisons())));
 	bufferForStatusBar.emplace(delimiter('-'));
 	bufferForStatusBar.emplace(generatingStrings("Количество пересылок:", std::to_string(getNumberOfShipments())));
+	bufferForStatusBar.emplace(delimiter('-'));
+	bufferForStatusBar.emplace(generatingStrings("Общее число операций:", std::to_string(getNumberOfComparisons() + getNumberOfShipments())));
 	bufferForStatusBar.emplace(delimiter('-'));
 	bufferForStatusBar.emplace(delimiter(' '));
 }
