@@ -4,6 +4,8 @@
 #include <string>
 #include <limits>
 #include <queue>							
+#include <map>							
+#include "enums.h"							
 
 namespace LAB1 {
 	struct MyApp
@@ -30,6 +32,7 @@ namespace LAB1 {
 
 		static const std::string generatingStrings	(const std::string& str, char del = ' ');
 		static const std::string generatingStrings	(const std::string&& str, char del = ' ');
+		static const std::string generatingStrings	(const std::string& str, const std::string& str2, char del = ' ');
 		static const std::string generatingStrings	(const std::string&& str, const std::string&& str2, char del = ' ');
 
 		static void showPrintArray					();
@@ -70,5 +73,8 @@ namespace LAB1 {
 		static const size_t maxTableWidth;
 		static const size_t maxTableColumns;
 		static size_t sizeArray;
+		static SortingStatus activeStatus;
+		static const std::map <LAB1::SortingStatus, std::string> mapActiveStatus;
+
 	};
 }

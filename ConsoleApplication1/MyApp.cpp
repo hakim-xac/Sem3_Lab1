@@ -84,6 +84,9 @@ void LAB1::MyApp::showStatusArray()
 	/// </summary>
 	out << generatingStrings("Статус массива:", flagClearArray? "ПУСТОЙ": "ЗАПОЛНЕН");
 	out << delimiter('-');
+	std::pair<std::string, std::string> status {"Статус сортировки:", mapActiveStatus.at(activeStatus) };
+	out << generatingStrings(status.first, status.second);
+	out << delimiter('-');
 	out << generatingStrings("Размер массива:", std::to_string(MyApp::getSizeArray()));
 	out << delimiter();
 }
@@ -159,12 +162,36 @@ const std::string LAB1::MyApp::generatingStrings(const std::string&& str, const 
 	/// <param name="str2"> Принимаем rValue строку </param>
 	/// <param name="del"> вспомогательный символ </param>
 	/// <returns>Сгенерированная строка, длиной равной ширине таблице</returns>
-	try{
-		size_t len{ str.length() + str2.length()+11};
-		size_t middleSize { getMaxTableWidth() > len ? getMaxTableWidth() - len : 11	};
+	try {
+		size_t len{ str.length() + str2.length() + 11 };
+		size_t middleSize{ getMaxTableWidth() > len ? getMaxTableWidth() - len : 11 };
 
 		std::string middle(middleSize, del);
-		std::string result{ "#    " + str + middle + str2 + "    #\n"};
+		std::string result{ "#    " + str + middle + str2 + "    #\n" };
+
+		return result;
+	}
+	catch (const std::exception& ex) {
+		std::cout << ex.what();
+	}
+}
+
+
+const std::string LAB1::MyApp::generatingStrings(const std::string& str, const std::string& str2, char del)
+{
+	/// <summary>
+	/// Генерирует строку со строкой str слева и str2 справа от края
+	/// </summary>
+	/// <param name="str"> Принимаем rValue строку </param>
+	/// <param name="str2"> Принимаем rValue строку </param>
+	/// <param name="del"> вспомогательный символ </param>
+	/// <returns>Сгенерированная строка, длиной равной ширине таблице</returns>
+	try {
+		size_t len{ str.length() + str2.length() + 11 };
+		size_t middleSize{ getMaxTableWidth() > len ? getMaxTableWidth() - len : 11 };
+
+		std::string middle(middleSize, del);
+		std::string result{ "#    " + str + middle + str2 + "    #\n" };
 
 		return result;
 	}
@@ -186,6 +213,7 @@ void LAB1::MyApp::clearArray()
 	Array.clear();
 	setSizeArray();
 	flagClearArray = true;
+	activeStatus = LAB1::SortingStatus::NotStatus;
 	addInStatusBar("Массив успешно очищен!");
 	
 }
@@ -340,6 +368,7 @@ void LAB1::MyApp::showGeneratedRandom()
 	/// </summary>
 	generatesArrayFromRandom(Array.data(), Array.size());
 	flagClearArray = false;
+	activeStatus = LAB1::SortingStatus::RandomSorted;
 	addInStatusBar("Массив успешно заполнен случайными числами!");
 }
 
@@ -420,9 +449,15 @@ void LAB1::MyApp::sortByDirectSelection(bool direction)
 	/// "false" -  по убыванию 
 	/// </param>
 	if (!flagClearArray) {
-		addInStatusBar(direction? "Массив успешно отсортирован По возрастанию методом прямого выбора"
-								: "Массив успешно отсортирован По убыванию методом прямого выбора"
-	);
+		if (direction) {
+			addInStatusBar("Массив успешно отсортирован По возрастанию методом прямого выбора");
+			activeStatus = LAB1::SortingStatus::SortedAscending;
+		}
+		else {
+			addInStatusBar("Массив успешно отсортирован По убыванию методом прямого выбора");
+			activeStatus = LAB1::SortingStatus::SortedDescending;
+		}
+		
 		try {
 			int hash, series;
 			std::tie(series, hash) = seriesAndHashesCountung(Array.data(), Array.size());
@@ -456,9 +491,14 @@ void LAB1::MyApp::sortByShell(bool direction)
 	/// "false" -  по убыванию 
 	/// </param>
 	if (!flagClearArray) {
-		addInStatusBar(direction ? "Массив успешно отсортирован По возрастанию методом Шелла"
-			: "Массив успешно отсортирован По убыванию методом Шелла"
-		);
+		if (direction) {
+			addInStatusBar("Массив успешно отсортирован По возрастанию методом Шелла");
+			activeStatus = LAB1::SortingStatus::SortedAscending;
+		}
+		else {
+			addInStatusBar("Массив успешно отсортирован По убыванию методом Шелла");
+			activeStatus = LAB1::SortingStatus::SortedDescending;
+		}
 		try {
 			int hash, series;
 			std::tie(series, hash) = seriesAndHashesCountung(Array.data(), Array.size());
@@ -492,9 +532,14 @@ void LAB1::MyApp::sortByHoare(bool direction)
 	/// "false" -  по убыванию 
 	/// </param>
 	if (!flagClearArray) {
-		addInStatusBar(direction ? "Массив успешно отсортирован По возрастанию методом Хоара"
-			: "Массив успешно отсортирован По убыванию методом Хоара"
-		);
+		if (direction) {
+			addInStatusBar("Массив успешно отсортирован По возрастанию методом Хоара");
+			activeStatus = LAB1::SortingStatus::SortedAscending;
+		}
+		else {
+			addInStatusBar("Массив успешно отсортирован По убыванию методом Хоара");
+			activeStatus = LAB1::SortingStatus::SortedDescending;
+		}
 
 		numberOfComparisons = 0;
 		numberOfShipments = 0;
@@ -504,7 +549,7 @@ void LAB1::MyApp::sortByHoare(bool direction)
 			bufferForStatusBar.emplace(generatingStrings("Количество серий до сортировки:", std::to_string(series)));
 			bufferForStatusBar.emplace(generatingStrings("Контрольная сумма до сортировки:", std::to_string(hash)));
 
-			hoareSort(Array.data(), 0, Array.size() - 1, direction);
+			hoareSort(Array.data(), 0, { static_cast<int>(Array.size()) - 1 }, direction);
 
 			std::tie(series, hash) = seriesAndHashesCountung(Array.data(), Array.size());
 			bufferForStatusBar.emplace(generatingStrings("Количество серий после сортировки:", std::to_string(series)));
@@ -528,6 +573,7 @@ void LAB1::MyApp::showShuffleArray()
 	/// </summary>
 	if (!flagClearArray) {
 		shuffleArray();
+		activeStatus = LAB1::SortingStatus::ShuffleSorted;
 		addInStatusBar("Массив успешно перемешан");
 	}
 	else {
@@ -629,9 +675,9 @@ void LAB1::MyApp::hoareSort(int* data, int begin, int end, bool direction)
 	/// "true" -  по возрастанию 
 	/// "false" -  по убыванию 
 	///  </param>
-	if (data == nullptr) throw std::exception("In void LAB1::MyApp::hoareSort(int* data, int begin, int end)\
+	if (data == nullptr) throw std::exception("In void LAB1::MyApp::hoareSort(int* data, size_t begin, size_t end)\
  data == nullptr");
-	int i{ begin }, j{ end };
+	auto i{ begin }, j{ end };
 	int x{ data[(begin + end) / 2] };
 
 	while (i <= j)
@@ -673,6 +719,6 @@ void LAB1::MyApp::showFieldsByTopic()
 	bufferForStatusBar.emplace(delimiter('-'));
 	bufferForStatusBar.emplace(generatingStrings("Общее число операций:", std::to_string(getNumberOfComparisons() + getNumberOfShipments())));
 	bufferForStatusBar.emplace(delimiter('-'));
-	bufferForStatusBar.emplace(delimiter(' '));
+	bufferForStatusBar.emplace(delimiter(' '));	
 }
 

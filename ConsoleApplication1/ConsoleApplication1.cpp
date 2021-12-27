@@ -18,6 +18,16 @@ bool LAB1::MyApp::flagClearArray                        { true };
 std::vector<int> LAB1::MyApp::Array                     (sizeArray);
 std::queue<std::string> LAB1::MyApp::bufferForStatusBar {};
 std::ostream& LAB1::MyApp::out                          { std::cout };
+LAB1::SortingStatus LAB1::MyApp::activeStatus           { LAB1::SortingStatus::NotStatus };
+
+const std::map <LAB1::SortingStatus, std::string> LAB1::MyApp::mapActiveStatus{
+    {LAB1::SortingStatus::SortedAscending, "По возрастанию"},
+    {LAB1::SortingStatus::SortedDescending, "По убыванию"},
+    {LAB1::SortingStatus::ShuffleSorted, "Перемешан"},
+    {LAB1::SortingStatus::RandomSorted, "Случайно"},
+    {LAB1::SortingStatus::NotStatus, "Не сортирован"}
+};
+
 
 
 int main()
